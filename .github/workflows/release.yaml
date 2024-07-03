@@ -1,0 +1,34 @@
+name: Manual Release Upload
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download artifacts for amd64
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ github.event.repository.name }}-amd64
+
+    - name: Download artifacts for arm64
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ github.event.repository.name }}-arm64
+
+    - name: Set up GitHub CLI
+      uses: cli/cli-action@v2
+
+    - name: Get the latest tag
+      id: get_tag
+      run: echo "::set-output name=tag::$(git describe --tags `git rev-list --tags --max-count=1`)"
+
+    - name: Upload artifacts to GitHub Packages
+      run: |
+        gh release create ${{ steps.get_tag.outputs.tag }} bin/${{ github.event.repository.name }}-amd64 --title "${{ steps.get_tag.outputs.tag }}" --notes "Release ${{ steps.get_tag.outputs.tag }}" --target main
+        gh release upload ${{ steps.get_tag.outputs.tag }} bin/${{ github.event.repository.name }}-arm64 --clobber
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

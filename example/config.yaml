@@ -1,0 +1,8 @@
+# Bon Voyage Agent
+agent: 
+  name: "Voyager"
+  id: "60F8A8EF-0D07-4353-B238-A4D568100E3B"
+server:
+  host: "192.168.1.148"
+  port: 6666
+  key: ""
